@@ -244,7 +244,7 @@ const CONFIG = {
     { label:'bexio',      src:null, bg:'#1B4F8A', fg:'#FFFFFF', w:78, h:50 },
     { label:'SAP',        src:null, bg:'#0A6ED1', fg:'#FFFFFF', w:60, h:44 },
     { label:'Salesforce', src:null, bg:'#00A1E0', fg:'#FFFFFF', w:98, h:46 },
-    { label:'Abacus',     src:null, bg:'#2B2B2B', fg:'#FFFFFF', w:80, h:54 },
+    { label:'Abacus',     src:null, bg:'#FFFFFF', fg:'#CC0000', border:'#E10600', dashed:true, w:80, h:54 },
     { label:'Dynamics',   src:null, bg:'#0B5394', fg:'#FFFFFF', w:90, h:48 },
     { label:'Sage',       src:null, bg:'#00A758', fg:'#FFFFFF', w:64, h:60 },
     { label:'Excel',      src:null, bg:'#217346', fg:'#FFFFFF', w:70, h:56 },
@@ -537,6 +537,13 @@ function drawTile(o,x,y,w,h,radius){
     return;
   }
   ctx.fillStyle=o.bg; roundRect(x,y,w,h,radius==null?4:radius); ctx.fill();
+  if(o.border){
+    ctx.save();
+    ctx.strokeStyle=o.border; ctx.lineWidth=3;
+    ctx.setLineDash(o.dashed?[6,5]:[]);
+    roundRect(x,y,w,h,radius==null?4:radius); ctx.stroke();
+    ctx.restore();
+  }
   ctx.fillStyle=o.fg||'#FFFFFF';
   const fs=Math.min(h*0.42,(w*1.45)/Math.max(o.label.length,1));
   ctx.font='800 '+fs+'px '+css('--display');
