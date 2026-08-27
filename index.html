@@ -24,7 +24,8 @@ body{background:var(--bg); color:var(--text); font-family:var(--display); -webki
 canvas{display:block; width:100%; height:100%;}
 
 .screen{position:absolute; inset:0; display:none; flex-direction:column; justify-content:center;
-  align-items:center; background:var(--bg); padding:24px;}
+  align-items:center; background:var(--bg); padding:24px;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;}
 .screen.on{display:flex;}
 .screen.transparent{background:rgba(36,45,54,.94);}
 .screen.attract-bg{background:rgba(36,45,54,.5);}
