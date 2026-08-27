@@ -27,6 +27,7 @@ canvas{display:block; width:100%; height:100%;}
   align-items:center; background:var(--bg); padding:24px;}
 .screen.on{display:flex;}
 .screen.transparent{background:rgba(36,45,54,.94);}
+.screen.attract-bg{background:rgba(36,45,54,.5);}
 
 .rule{height:4px; width:100%; background:linear-gradient(90deg,var(--cyan),var(--green));}
 .rule.thin{height:1px; background:var(--line);}
@@ -129,7 +130,7 @@ tr.me td{color:var(--green);}
   </div>
 
   <!-- écran d'attraction (inactivité) -->
-  <div class="screen" id="s-attract">
+  <div class="screen attract-bg" id="s-attract">
     <div class="panel" style="text-align:center; align-items:center;">
       <div class="rule"></div>
       <img class="panel-logo" id="logo-2" alt="Nalios">
@@ -397,6 +398,7 @@ window.addEventListener('resize',resize);
 let obstacles=[],bonuses=[],pops=[];
 let worldX=0,speed=CONFIG.physics.speed0,dist=0,bonusPts=0,appsTaken=0;
 let state='idle',nextSpawn=0,shake=0,last=0;
+let demoMode=false;
 let current={name:'',email:'',consent:false};
 
 const totalScore=()=>Math.floor(dist/8)+bonusPts;
@@ -409,6 +411,22 @@ function reset(){
   player.onGround=true; player.squash=0; runPhase=0; deathT=0;
   nextSpawn=W+300; shake=0;
 }
+
+/* saut automatique du joueur-fantôme affiché en fond de l'écran d'attraction */
+function demoAI(){
+  if(!player.onGround) return;
+  const front=player.x+player.w;
+  let nearest=null;
+  for(const o of obstacles){
+    if(o.x+o.w<front) continue;
+    if(!nearest||o.x<nearest.x) nearest=o;
+  }
+  if(nearest && nearest.x-front<70+speed*0.11){
+    player.vy=CONFIG.physics.jump; player.onGround=false;
+  }
+}
+function startDemo(){ demoMode=true; reset(); }
+function stopDemo(){ demoMode=false; reset(); }
 
 function jump(){
   if(state!=='play') return;
@@ -465,7 +483,7 @@ function update(dt){
   pops=pops.filter(p=>p.t<0.9);
   bonuses.forEach(b=>b.t+=dt);
   if(state==='dead') deathT+=dt;
-  if(state!=='play') return;
+  if(state!=='play' && !demoMode) return;
 
   speed=Math.min(CONFIG.physics.speedMax,CONFIG.physics.speed0+dist*CONFIG.physics.accel/100);
   const dx=speed*dt;
@@ -489,6 +507,8 @@ function update(dt){
   nextSpawn-=dx;
   if(nextSpawn<=W) spawn();
 
+  if(demoMode) demoAI();
+
   /* boîte de collision : colonne étroite autour du tronc, tolérante */
   const pw=24, ph=player.h-12;
   const px=player.x+(player.w-pw)/2;
@@ -500,19 +520,19 @@ function update(dt){
   for(const b of bonuses){
     const by=GROUND-b.alt, s=CONFIG.bonus.r*2+10;
     if(gx<b.x+s/2 && gx+gw>b.x-s/2 && gy<by+s/2 && gy+gh>by-s/2){
-      b.got=true; bonusPts+=b.pts; appsTaken++; sfx.bonus(b.pts);
-      pops.push({x:b.x,y:by,txt:'+'+b.pts,t:0});
+      b.got=true; bonusPts+=b.pts; appsTaken++;
+      if(!demoMode){ sfx.bonus(b.pts); pops.push({x:b.x,y:by,txt:'+'+b.pts,t:0}); }
     }
   }
 
-  /* collisions */
+  /* collisions : en mode démo, on repart discrètement sans écran de fin */
   for(const o of obstacles){
     if(o.kind==='ground'){
       const oy=GROUND-o.h;
-      if(px<o.x+o.w-4 && px+pw>o.x+4 && py+ph>oy+4){ die(); return; }
+      if(px<o.x+o.w-4 && px+pw>o.x+4 && py+ph>oy+4){ if(demoMode){ reset(); return; } die(); return; }
     }else{
       const top=GROUND-o.bottom-o.h;
-      if(px<o.x+o.w-4 && px+pw>o.x+4 && py+ph>top+4 && py<GROUND-o.bottom-4){ die(); return; }
+      if(px<o.x+o.w-4 && px+pw>o.x+4 && py+ph>top+4 && py<GROUND-o.bottom-4){ if(demoMode){ reset(); return; } die(); return; }
     }
   }
 }
@@ -589,7 +609,7 @@ function drawRunner(){
     ra=rise?-0.65:-0.40; rb=rise?1.20:0.75;
     aa=rise?2.20:1.30;  ab=rise?-1.95:-1.15;
     lean=rise?0.10:-0.06;
-  }else if(state==='play'){
+  }else if(state==='play'||demoMode){
     la=0.62*Math.sin(p);            lb=Math.max(0,1.05*Math.sin(p+1.25));
     ra=0.62*Math.sin(p+Math.PI);    rb=Math.max(0,1.05*Math.sin(p+Math.PI+1.25));
     aa=-0.78*Math.sin(p);           ab=-0.78*Math.sin(p+Math.PI);
@@ -610,7 +630,7 @@ function drawRunner(){
 
   const sq=player.squash*0.16;
   if(sq) ctx.scale(1+sq*0.6,1-sq);
-  if(state==='play'&&player.onGround) ctx.translate(0,-Math.abs(Math.sin(p))*1.6);
+  if((state==='play'||demoMode)&&player.onGround) ctx.translate(0,-Math.abs(Math.sin(p))*1.6);
 
   ctx.lineWidth=R.lw; ctx.lineCap='round'; ctx.lineJoin='round';
 
@@ -784,6 +804,8 @@ function show(id){
   if(id==='s-board') renderBoard();
   if(id==='s-lock'){ $('f-pass').value=''; $('pass-err').style.display='none'; }
   if(id==='s-admin') refreshAdmin();
+  if(id==='s-attract') startDemo();
+  else if(demoMode) stopDemo();
 }
 function startRun(){
   screens.forEach(s=>$(s).classList.remove('on'));
