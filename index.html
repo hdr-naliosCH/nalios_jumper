@@ -83,6 +83,9 @@ tr.me td{color:var(--green);}
 .admin-note{font-size:12px; color:var(--muted); line-height:1.5;}
 .danger{color:#FF6B6B; font-weight:700;}
 
+@keyframes attractPulse{0%,100%{transform:scale(1);} 50%{transform:scale(1.045);}}
+.attract-cta{animation:attractPulse 1.4s ease-in-out infinite;}
+
 .topbar{position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between;
   align-items:center; padding:14px 18px; z-index:10; pointer-events:none;}
 .tag{font-size:10px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--muted);}
@@ -122,6 +125,18 @@ tr.me td{color:var(--green);}
       </label>
       <button class="btn primary" id="btn-start">Commencer</button>
       <button class="btn small" id="btn-board-1">Voir le classement</button>
+    </div>
+  </div>
+
+  <!-- écran d'attraction (inactivité) -->
+  <div class="screen" id="s-attract">
+    <div class="panel" style="text-align:center; align-items:center;">
+      <div class="rule"></div>
+      <img class="panel-logo" id="logo-2" alt="Nalios">
+      <div class="eyebrow">Nalios · Partenaire Odoo</div>
+      <h1 class="attract-cta" style="text-align:center;">Viens jouer et gagne<br>des <span class="accent">heures de consultance</span><br>sur Odoo</h1>
+      <div class="rule thin"></div>
+      <p class="lede" style="text-align:center;">Touche l'écran pour commencer</p>
     </div>
   </div>
 
@@ -290,6 +305,7 @@ function preload(){
 }
 preload();
 document.getElementById('logo-1').src=LOGO_NALIOS;
+document.getElementById('logo-2').src=LOGO_NALIOS;
 
 /* =================================================================
    3b. SONS — synthétisés, aucun fichier externe
@@ -719,7 +735,7 @@ function render(){
 
 function loop(ts){
   const dt=Math.min((ts-last)/1000||0,0.05); last=ts;
-  update(dt); render();
+  update(dt); render(); checkAttract();
   requestAnimationFrame(loop);
 }
 
@@ -760,7 +776,7 @@ function renderBoard(){
 /* =================================================================
    7. NAVIGATION
 ================================================================= */
-const screens=['s-register','s-ready','s-over','s-board','s-lock','s-admin'];
+const screens=['s-register','s-attract','s-ready','s-over','s-board','s-lock','s-admin'];
 const ADMIN_PASS='nalios';   /* mot de passe du panneau Paramètres */
 const $=id=>document.getElementById(id);
 function show(id){
@@ -841,6 +857,24 @@ $('fs-tag').onclick=()=>{
   if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
   else document.exitFullscreen?.();
 };
+
+/* =================================================================
+   7b. ÉCRAN D'ATTRACTION (inactivité)
+================================================================= */
+const ATTRACT_DELAY=30000; /* 30s sans interaction sur l'écran d'accueil */
+let lastActivity=performance.now();
+function markActivity(){
+  lastActivity=performance.now();
+  if($('s-attract').classList.contains('on')) show('s-register');
+}
+function checkAttract(){
+  if(state==='idle' && $('s-register').classList.contains('on') &&
+     performance.now()-lastActivity>ATTRACT_DELAY){
+    show('s-attract');
+  }
+}
+window.addEventListener('pointerdown',markActivity,{capture:true});
+window.addEventListener('keydown',markActivity,{capture:true});
 
 /* =================================================================
    8. ENTRÉES
