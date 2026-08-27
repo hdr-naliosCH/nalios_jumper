@@ -220,15 +220,17 @@ tr.me td{color:var(--green);}
       <div class="eyebrow">Réservé au stand</div>
       <h2>Paramètres</h2>
       <p class="admin-note" id="admin-count">—</p>
-      <button class="btn primary" id="btn-export">Télécharger le fichier CSV</button>
-      <p class="admin-note">Nom, e-mail, score, date et accord de recontact pour chaque partie.</p>
+      <p class="admin-note">
+        <span class="danger">Les contacts (e-mail, consentement) ne sont plus accessibles depuis cette page, par sécurité.</span><br>
+        Pour les récupérer : <b>console.firebase.google.com</b> → projet <b>nalios-jumper</b> →
+        Firestore Database → Data → collection <b>entries</b>.
+      </p>
       <div class="rule thin"></div>
       <button class="btn" id="btn-reset">Remettre le classement à zéro</button>
       <p class="admin-note" id="reset-note" style="display:none;">
         <span class="danger">Par sécurité, la suppression ne se fait plus depuis cette page.</span><br>
-        Exporte le CSV avant de continuer, puis va sur <b>console.firebase.google.com</b> →
-        projet <b>nalios-jumper</b> → Firestore Database → Data → collection <b>scores</b> →
-        sélectionne tout → supprime.
+        Va sur <b>console.firebase.google.com</b> → projet <b>nalios-jumper</b> → Firestore Database → Data →
+        supprime tous les documents des collections <b>scores</b> et <b>entries</b>.
       </p>
       <button class="btn small" id="btn-admin-back">Retour au classement</button>
     </div>
@@ -262,7 +264,10 @@ const firebaseConfig = {
   appId: "1:248669504156:web:082d715c33d6d2b78de359"
 };
 const db = getFirestore(initializeApp(firebaseConfig));
+/* scores : classement public — nom + score uniquement, aucune donnée personnelle. */
 const scoresCol = collection(db, 'scores');
+/* entries : nom + e-mail + consentement — jamais lisible publiquement (voir firestore.rules). */
+const entriesCol = collection(db, 'entries');
 
 /* =================================================================
    1. CONFIGURATION
@@ -552,6 +557,7 @@ function die(){
   state='dead'; shake=1; deathT=0;
   sfx.die();
   const pts=totalScore();
+  current.score=pts;
   document.getElementById('over-score').textContent=pts;
   document.getElementById('over-dist').textContent=Math.floor(dist/8)+' m';
   document.getElementById('over-apps').textContent=appsTaken;
@@ -781,20 +787,14 @@ function loop(ts){
 ================================================================= */
 async function saveScore(p,pts){
   const at=new Date().toISOString();
-  await addDoc(scoresCol,{name:p.name,email:p.email,consent:p.consent,score:pts,at});
+  /* entries (privé, jamais lu par le site) : les vraies coordonnées du contact.
+     scores (public) : uniquement ce qu'il faut pour un classement, sans donnée personnelle. */
+  await Promise.all([
+    addDoc(entriesCol,{name:p.name,email:p.email,consent:p.consent,score:pts,at}),
+    addDoc(scoresCol,{name:p.name,score:pts,at})
+  ]);
   const higher=await getCountFromServer(query(scoresCol,where('score','>',pts)));
   return higher.data().count+1;
-}
-async function bestPerPlayer(){
-  /* les 300 meilleures parties suffisent largement à couvrir le top 20 par joueur */
-  const snap=await getDocs(query(scoresCol,orderBy('score','desc'),limit(300)));
-  const map=new Map();
-  snap.forEach(doc=>{
-    const r=doc.data();
-    const k=r.email.toLowerCase();
-    if(!map.has(k)||map.get(k).score<r.score) map.set(k,r);
-  });
-  return [...map.values()].sort((a,b)=>b.score-a.score);
 }
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -803,14 +803,14 @@ async function renderBoard(){
   const body=document.getElementById('board-body');
   body.innerHTML='<tr><td colspan="3" class="empty">Chargement…</td></tr>';
   let rows;
-  try{ rows=(await bestPerPlayer()).slice(0,20); }
+  try{ rows=(await getDocs(query(scoresCol,orderBy('score','desc'),limit(20)))).docs.map(d=>d.data()); }
   catch(e){ body.innerHTML='<tr><td colspan="3" class="empty">Classement indisponible pour le moment.</td></tr>'; return; }
   if(!rows.length){
     body.innerHTML='<tr><td colspan="3" class="empty">Aucune partie jouée. Le premier score fixe la barre.</td></tr>';
     return;
   }
   body.innerHTML=rows.map((r,i)=>
-    '<tr class="'+(r.email===current.email?'me':'')+'">'+
+    '<tr class="'+(r.name===current.name&&r.score===current.score?'me':'')+'">'+
     '<td class="rank">'+String(i+1).padStart(2,'0')+'</td>'+
     '<td>'+escapeHtml(r.name)+'</td>'+
     '<td class="num pts">'+r.score+'</td></tr>').join('');
@@ -873,23 +873,10 @@ async function refreshAdmin(){
   let rows;
   try{ rows=(await getDocs(scoresCol)).docs.map(d=>d.data()); }
   catch(e){ $('admin-count').textContent='Données indisponibles pour le moment.'; return; }
-  const players=new Set(rows.map(r=>r.email.toLowerCase())).size;
-  $('admin-count').textContent=rows.length+' partie(s) · '+players+' contact(s) · '+
-    rows.filter(r=>r.consent).length+' avec accord de recontact.';
+  $('admin-count').textContent=rows.length+' partie(s) jouée(s) au total.';
 }
 $('btn-reset').onclick=()=>{ $('reset-note').style.display='block'; };
 $('btn-admin-back').onclick=()=>show('s-board');
-
-$('btn-export').onclick=async ()=>{
-  const rows=(await getDocs(scoresCol)).docs.map(d=>d.data());
-  const csv=[['date','nom','email','points','accord_recontact'].join(';')].concat(
-    rows.map(r=>[r.at,'"'+r.name.replace(/"/g,'""')+'"',r.email,r.score,r.consent?'oui':'non'].join(';'))
-  ).join('\r\n');
-  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download='nalios-runner-contacts.csv'; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-};
 
 function paintSound(){
   const el=$('snd-tag');
