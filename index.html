@@ -53,6 +53,8 @@ p.lede{font-size:15px; color:var(--muted); line-height:1.5; max-width:46ch;}
 .consent{display:flex; gap:12px; align-items:flex-start; cursor:pointer;}
 .consent input{width:22px; height:22px; accent-color:var(--cyan); margin-top:2px; flex:0 0 auto;}
 .consent span{font-size:13px; color:var(--muted); line-height:1.45;}
+.consent.err span{color:#FF6B6B;}
+.consent.err input{outline:2px solid #FF6B6B; outline-offset:2px;}
 
 .btn{font-family:var(--display); font-size:17px; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
   padding:17px 26px; border:none; cursor:pointer; background:var(--panel); color:var(--text);
@@ -122,7 +124,7 @@ tr.me td{color:var(--green);}
       </div>
       <label class="consent">
         <input id="f-consent" type="checkbox">
-        <span>J'accepte que Nalios me recontacte au sujet d'Odoo. Mes données ne sont pas transmises à des tiers.</span>
+        <span>J'accepte que Nalios me recontacte au sujet d'Odoo. Mes données ne sont pas transmises à des tiers. *</span>
       </label>
       <button class="btn primary" id="btn-start">Commencer</button>
       <button class="btn small" id="btn-board-1">Voir le classement</button>
@@ -843,13 +845,31 @@ function startRun(){
   reset(); state='play';
 }
 
+/* domaines jetables courants — pour filtrer les faux e-mails de complaisance */
+const DISPOSABLE_DOMAINS=new Set([
+  'mailinator.com','guerrillamail.com','10minutemail.com','yopmail.com',
+  'trashmail.com','tempmail.com','temp-mail.org','fakeinbox.com',
+  'discard.email','sharklasers.com','maildrop.cc'
+]);
+function looksLikeRealEmail(v){
+  const m=v.match(/^([^\s@]+)@([^\s@]+)\.([^\s@]{2,})$/);
+  if(!m) return false;
+  const [,local,domain,tld]=m;
+  if(/(.)\1{2,}/.test(local)) return false;   /* ex: "blll" */
+  if(/(.)\1{2,}/.test(domain)) return false;  /* ex: "looooo" */
+  if(DISPOSABLE_DOMAINS.has((domain+'.'+tld).toLowerCase())) return false;
+  return true;
+}
+
 $('btn-start').onclick=()=>{
-  const n=$('f-name'), e=$('f-email');
+  const n=$('f-name'), e=$('f-email'), c=$('f-consent'), cLabel=c.closest('.consent');
   const okN=n.value.trim().length>=2;
-  const okE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.value.trim());
+  const okE=looksLikeRealEmail(e.value.trim());
+  const okC=c.checked;
   n.classList.toggle('err',!okN); e.classList.toggle('err',!okE);
-  if(!okN||!okE){ (okN?e:n).focus(); return; }
-  current={name:n.value.trim(),email:e.value.trim().toLowerCase(),consent:$('f-consent').checked};
+  cLabel.classList.toggle('err',!okC);
+  if(!okN||!okE||!okC){ (!okN?n:!okE?e:c).focus(); return; }
+  current={name:n.value.trim(),email:e.value.trim().toLowerCase(),consent:c.checked};
   $('ready-hello').textContent='Prêt, '+current.name.split(' ')[0]+' ?';
   show('s-ready');
 };
@@ -861,6 +881,7 @@ $('btn-back').onclick=()=>show(state==='dead'?'s-over':'s-register');
 $('btn-newplayer').onclick=()=>{
   $('f-name').value=''; $('f-email').value=''; $('f-consent').checked=false;
   $('f-name').classList.remove('err'); $('f-email').classList.remove('err');
+  $('f-consent').closest('.consent').classList.remove('err');
   current={name:'',email:'',consent:false}; state='idle'; reset(); show('s-register');
 };
 
