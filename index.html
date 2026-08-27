@@ -251,7 +251,7 @@ tr.me td{color:var(--green);}
 ================================================================= */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getCountFromServer,
+  getFirestore, collection, doc, setDoc, addDoc, getDocs, getCountFromServer,
   query, orderBy, limit, where
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
@@ -785,13 +785,20 @@ function loop(ts){
 /* =================================================================
    6. CLASSEMENT
 ================================================================= */
+/* un seul document par nom dans le classement public : la règle Firestore
+   n'autorise l'écrasement que si le nouveau score est meilleur. */
+function scoreDocId(name){
+  return name.trim().toLowerCase().replace(/\//g,'_').slice(0,60) || 'anonyme';
+}
 async function saveScore(p,pts){
   const at=new Date().toISOString();
-  /* entries (privé, jamais lu par le site) : les vraies coordonnées du contact.
-     scores (public) : uniquement ce qu'il faut pour un classement, sans donnée personnelle. */
+  /* entries (privé, jamais lu par le site) : chaque partie, coordonnées du contact incluses.
+     scores (public) : un seul document par nom, uniquement si c'est son meilleur score. */
+  const boardWrite=setDoc(doc(scoresCol,scoreDocId(p.name)),{name:p.name,score:pts,at})
+    .catch(()=>{ /* pas une amélioration du meilleur score existant pour ce nom : normal */ });
   await Promise.all([
     addDoc(entriesCol,{name:p.name,email:p.email,consent:p.consent,score:pts,at}),
-    addDoc(scoresCol,{name:p.name,score:pts,at})
+    boardWrite
   ]);
   const higher=await getCountFromServer(query(scoresCol,where('score','>',pts)));
   return higher.data().count+1;
