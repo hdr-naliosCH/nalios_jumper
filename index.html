@@ -625,10 +625,13 @@ function jump(){
 /* --- génération ---------------------------------------------------- */
 function pick(a){ return a[(Math.random()*a.length)|0]; }
 
-/* à partir d'un gros score, les obstacles se resserrent un peu (moins de
-   temps de réaction) — en plus du multiplicateur de vitesse déjà en place. */
+/* les obstacles se resserrent progressivement avec le score (1% de moins
+   tous les 1000 points, au lieu d'un saut brutal à un palier donné) — en
+   plus du multiplicateur de vitesse déjà en place. Plancher à 0.5 pour
+   que ça reste jouable aux très gros scores. */
 function gapMultiplier(pts){
-  return pts>=10000 ? 0.82 : 1;
+  const steps=Math.floor(pts/1000);
+  return Math.max(0.5,1-steps*0.01);
 }
 
 function spawn(){
