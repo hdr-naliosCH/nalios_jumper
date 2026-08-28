@@ -627,11 +627,11 @@ function pick(a){ return a[(Math.random()*a.length)|0]; }
 
 /* les obstacles se resserrent progressivement avec le score (1% de moins
    tous les 1000 points, au lieu d'un saut brutal à un palier donné) — en
-   plus du multiplicateur de vitesse déjà en place. Plancher à 0.5 pour
-   que ça reste jouable aux très gros scores. */
+   plus du multiplicateur de vitesse déjà en place. Plafonné à -25% (atteint
+   à 25 000 points), ça ne se resserre plus au-delà. */
 function gapMultiplier(pts){
-  const steps=Math.floor(pts/1000);
-  return Math.max(0.5,1-steps*0.01);
+  const steps=Math.min(25,Math.floor(pts/1000));
+  return 1-steps*0.01;
 }
 
 function spawn(){
