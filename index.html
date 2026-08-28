@@ -64,7 +64,14 @@ p.lede{font-size:15px; color:var(--muted); line-height:1.5; max-width:46ch;}
 .btn.primary{background:linear-gradient(90deg,var(--cyan),var(--green)); color:#132029; border-color:transparent;}
 .btn.small{font-size:13px; padding:12px 16px;}
 .btn:focus-visible{outline:3px solid var(--cyan); outline-offset:3px;}
+.btn.active{border-color:var(--cyan); color:var(--cyan);}
 .btn-row{display:flex; gap:10px;}
+
+.lang-switch{display:flex; gap:8px; align-self:flex-start;}
+.lang-btn{font-family:var(--display); font-size:12px; font-weight:800; letter-spacing:.08em;
+  padding:6px 16px; border:2px solid var(--line); background:transparent; color:var(--muted);
+  cursor:pointer; border-radius:999px;}
+.lang-btn.active{border-color:var(--cyan); color:var(--text); background:rgba(20,190,222,.12);}
 
 .bigscore{font-family:var(--mono); font-size:clamp(64px,17vw,128px); font-weight:700; letter-spacing:-.04em;
   line-height:.85; font-variant-numeric:tabular-nums;
@@ -113,6 +120,10 @@ tr.me td{color:var(--green);}
   <div class="screen on" id="s-register">
     <div class="panel">
       <div class="rule"></div>
+      <div class="lang-switch">
+        <button type="button" class="lang-btn" id="home-lang-fr">FR</button>
+        <button type="button" class="lang-btn" id="home-lang-nl">NL</button>
+      </div>
       <img class="panel-logo" id="logo-1" alt="Nalios">
       <div>
         <div class="eyebrow" id="reg-eyebrow">Nalios · Partenaire Odoo</div>
@@ -1148,6 +1159,10 @@ function applyLanguage(){
   $('settings-tag').textContent=t('settingsTag');
   $('attract-subtitle').textContent=t('toucheEcran');
   $('texts-lang-note').textContent=LANG.toUpperCase();
+  $('home-lang-fr').classList.toggle('active',LANG==='fr');
+  $('home-lang-nl').classList.toggle('active',LANG==='nl');
+  $('btn-lang-fr').classList.toggle('active',LANG==='fr');
+  $('btn-lang-nl').classList.toggle('active',LANG==='nl');
   paintSound();
 }
 
@@ -1188,6 +1203,8 @@ function setLanguage(lang){
 }
 $('btn-lang-fr').onclick=()=>setLanguage('fr');
 $('btn-lang-nl').onclick=()=>setLanguage('nl');
+$('home-lang-fr').onclick=()=>setLanguage('fr');
+$('home-lang-nl').onclick=()=>setLanguage('nl');
 
 $('btn-texts-save').onclick=()=>{
   const d=DEFAULT_TEXTS[LANG];
