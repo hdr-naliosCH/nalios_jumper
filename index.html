@@ -455,9 +455,16 @@ function jump(){
 /* --- génération ---------------------------------------------------- */
 function pick(a){ return a[(Math.random()*a.length)|0]; }
 
+/* à partir d'un gros score, les obstacles se resserrent un peu (moins de
+   temps de réaction) — en plus du multiplicateur de vitesse déjà en place. */
+function gapMultiplier(pts){
+  return pts>=10000 ? 0.82 : 1;
+}
+
 function spawn(){
   const x=W+50;
   const flyChance = dist>900 ? 0.30 : 0;
+  const gm=gapMultiplier(totalScore());
   let gapAfter;
 
   if(Math.random()<flyChance){
@@ -465,7 +472,7 @@ function spawn(){
     const t=pick(CONFIG.rivals);
     const bottom=44+Math.random()*22;
     obstacles.push({kind:'fly',t,x,w:t.w,h:t.h,bottom,t0:Math.random()*6});
-    gapAfter=speed*0.74+Math.random()*speed*0.45;
+    gapAfter=(speed*0.74+Math.random()*speed*0.45)*gm;
   }else{
     const t=pick(CONFIG.rivals);
     obstacles.push({kind:'ground',t,x,w:t.w,h:t.h});
@@ -475,7 +482,7 @@ function spawn(){
       obstacles.push({kind:'ground',t:t2,x:x+t.w+12,w:t2.w,h:t2.h});
       width+=t2.w+12;
     }
-    gapAfter=speed*0.62+Math.random()*speed*0.5;
+    gapAfter=(speed*0.62+Math.random()*speed*0.5)*gm;
   }
 
   nextSpawn=x+gapAfter;
