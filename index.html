@@ -96,7 +96,12 @@ tr.me td{color:var(--green);}
 .tag.act{pointer-events:auto; cursor:pointer;}
 .tag.act:active{color:var(--cyan);}
 .tag.muted{color:#4E5B67;}
-.tags-right{display:flex; gap:18px; align-items:center;}
+.tags-right,.tags-left{display:flex; gap:18px; align-items:center;}
+
+.rival-row{display:flex; gap:10px; align-items:center; padding:7px 0; cursor:pointer;}
+.rival-row input{width:18px; height:18px; accent-color:var(--cyan); flex:0 0 auto;}
+.rival-row span{font-size:14px; color:var(--text);}
+.lang-note{color:var(--text); font-weight:700;}
 
 </style>
 </head>
@@ -110,22 +115,22 @@ tr.me td{color:var(--green);}
       <div class="rule"></div>
       <img class="panel-logo" id="logo-1" alt="Nalios">
       <div>
-        <div class="eyebrow">Nalios · Partenaire Odoo</div>
-        <h1>Saute par-dessus<br>la <span class="accent">concurrence</span></h1>
+        <div class="eyebrow" id="reg-eyebrow">Nalios · Partenaire Odoo</div>
+        <h1><span id="reg-title">Saute par-dessus la</span> <span class="accent" id="reg-accent">concurrence</span></h1>
       </div>
-      <p class="lede">Trente secondes, un doigt, un classement. Le meilleur score du salon repart avec le trophée.</p>
+      <p class="lede" id="reg-lede">Trente secondes, un doigt, un classement. Le meilleur score du salon repart avec le trophée.</p>
       <div class="rule thin"></div>
       <div class="field">
-        <label for="f-name">Nom affiché au classement</label>
+        <label for="f-name" id="label-nom">Nom affiché au classement</label>
         <input id="f-name" type="text" autocomplete="name" placeholder="Camille C." maxlength="24">
       </div>
       <div class="field">
-        <label for="f-email">E-mail</label>
+        <label for="f-email" id="label-email">E-mail</label>
         <input id="f-email" type="email" autocomplete="email" placeholder="camille@entreprise.ch" maxlength="80">
       </div>
       <label class="consent">
         <input id="f-consent" type="checkbox">
-        <span>J'accepte que Nalios me recontacte au sujet d'Odoo. Mes données ne sont pas transmises à des tiers. *</span>
+        <span id="consent-text">J'accepte que Nalios me recontacte au sujet d'Odoo. Mes données ne sont pas transmises à des tiers.</span>&nbsp;*
       </label>
       <button class="btn primary" id="btn-start">Commencer</button>
       <button class="btn small" id="btn-board-1">Voir le classement</button>
@@ -137,10 +142,10 @@ tr.me td{color:var(--green);}
     <div class="panel" style="text-align:center; align-items:center;">
       <div class="rule"></div>
       <img class="panel-logo" id="logo-2" alt="Nalios">
-      <div class="eyebrow">Nalios · Partenaire Odoo</div>
-      <h1 class="attract-cta" style="text-align:center;">Viens jouer et gagne<br>des <span class="accent">heures de consultance</span><br>sur Odoo</h1>
+      <div class="eyebrow" id="attract-eyebrow">Nalios · Partenaire Odoo</div>
+      <h1 class="attract-cta" style="text-align:center;"><span id="attract-title">Viens jouer et gagne des</span> <span class="accent" id="attract-accent">heures de consultance sur Odoo</span></h1>
       <div class="rule thin"></div>
-      <p class="lede" style="text-align:center;">Touche l'écran pour commencer</p>
+      <p class="lede" id="attract-subtitle" style="text-align:center;">Touche l'écran pour commencer</p>
     </div>
   </div>
 
@@ -149,7 +154,7 @@ tr.me td{color:var(--green);}
     <div class="panel" style="text-align:center; align-items:center;">
       <h2 id="ready-hello">Prêt ?</h2>
       <div class="rule thin"></div>
-      <p class="lede" style="text-align:center;">
+      <p class="lede" id="ready-instructions" style="text-align:center;">
         <strong style="color:var(--text)">Toucher l'écran</strong> ou <strong style="color:var(--text)">Espace</strong> → sauter.<br>
         Certains concurrents flottent en hauteur : vise plus haut.<br>
         Attrape les <strong style="color:#B07FA8">O</strong> Odoo en vol : plus ils sont hauts, plus ils rapportent.
@@ -164,12 +169,12 @@ tr.me td{color:var(--green);}
       <div class="eyebrow" id="over-verdict">Manche terminée</div>
       <div>
         <div class="bigscore" id="over-score">0</div>
-        <div class="unit">Points</div>
+        <div class="unit" id="unit-points">Points</div>
       </div>
       <div class="split">
-        <div>DISTANCE<b id="over-dist">0 m</b></div>
-        <div>APPS ODOO<b id="over-apps">0</b></div>
-        <div>BONUS<b id="over-bonus">0</b></div>
+        <div><span id="label-distance">DISTANCE</span><b id="over-dist">0 m</b></div>
+        <div><span id="label-apps">APPS ODOO</span><b id="over-apps">0</b></div>
+        <div><span id="label-bonus">BONUS</span><b id="over-bonus">0</b></div>
       </div>
       <div class="rule thin"></div>
       <div class="eyebrow" id="over-rank">—</div>
@@ -185,11 +190,11 @@ tr.me td{color:var(--green);}
   <div class="screen" id="s-board">
     <div class="panel">
       <div class="rule"></div>
-      <div class="eyebrow">Odoo Business Show</div>
-      <h2>Classement</h2>
+      <div class="eyebrow" id="board-eyebrow">Odoo Business Show</div>
+      <h2 id="board-heading">Classement</h2>
       <div class="scroller">
         <table>
-          <thead><tr><th></th><th>Joueur</th><th class="num">Points</th></tr></thead>
+          <thead><tr><th></th><th id="th-joueur">Joueur</th><th class="num" id="th-points">Points</th></tr></thead>
           <tbody id="board-body"></tbody>
         </table>
       </div>
@@ -204,10 +209,10 @@ tr.me td{color:var(--green);}
   <div class="screen" id="s-lock">
     <div class="panel">
       <div class="rule"></div>
-      <div class="eyebrow">Réservé au stand</div>
-      <h2>Paramètres</h2>
+      <div class="eyebrow" id="lock-eyebrow">Réservé au stand</div>
+      <h2 id="lock-heading">Paramètres</h2>
       <div class="field">
-        <label for="f-pass">Mot de passe</label>
+        <label for="f-pass" id="label-pass">Mot de passe</label>
         <input id="f-pass" type="password" autocomplete="off" placeholder="••••••">
       </div>
       <p class="admin-note danger" id="pass-err" style="display:none;">Mot de passe incorrect.</p>
@@ -220,14 +225,70 @@ tr.me td{color:var(--green);}
   <div class="screen" id="s-admin">
     <div class="panel">
       <div class="rule"></div>
-      <div class="eyebrow">Réservé au stand</div>
-      <h2>Paramètres</h2>
+      <div class="eyebrow" id="admin-eyebrow">Réservé au stand</div>
+      <h2 id="admin-heading">Paramètres</h2>
       <p class="admin-note" id="admin-count">—</p>
       <p class="admin-note">
         <span class="danger">Les contacts (e-mail, consentement) ne sont plus accessibles depuis cette page, par sécurité.</span><br>
         Pour les récupérer : <b>console.firebase.google.com</b> → projet <b>nalios-jumper</b> →
         Firestore Database → Data → collection <b>entries</b>.
       </p>
+
+      <div class="rule thin"></div>
+      <div class="eyebrow">Langue du jeu</div>
+      <div class="btn-row">
+        <button class="btn" id="btn-lang-fr">Français</button>
+        <button class="btn" id="btn-lang-nl">Nederlands</button>
+      </div>
+
+      <div class="rule thin"></div>
+      <div class="eyebrow">Concurrents affichés dans le jeu</div>
+      <p class="admin-note">Décoche ceux à exclure de cette session (au moins un doit rester coché).</p>
+      <div id="rival-picker"></div>
+
+      <div class="rule thin"></div>
+      <div class="eyebrow">Textes affichés — langue : <span class="lang-note" id="texts-lang-note">FR</span></div>
+      <div class="field">
+        <label>Accroche (petit texte au-dessus du titre)</label>
+        <input id="txt-eyebrow" type="text" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Titre — partie normale</label>
+        <input id="txt-title" type="text" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Titre — partie en couleur</label>
+        <input id="txt-accent" type="text" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Texte d'intro (sous le titre)</label>
+        <input id="txt-lede" type="text" maxlength="160">
+      </div>
+      <div class="field">
+        <label>Texte de consentement (case à cocher)</label>
+        <input id="txt-consent" type="text" maxlength="200">
+      </div>
+      <div class="field">
+        <label>Écran d'attraction — titre normal</label>
+        <input id="txt-attractTitle" type="text" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Écran d'attraction — titre en couleur</label>
+        <input id="txt-attractAccent" type="text" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Nom de l'événement (écran classement)</label>
+        <input id="txt-boardEyebrow" type="text" maxlength="60">
+      </div>
+      <div class="field">
+        <label>Tag en haut de l'écran</label>
+        <input id="txt-topbarTag" type="text" maxlength="40">
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" id="btn-texts-save">Enregistrer les textes</button>
+        <button class="btn" id="btn-texts-reset">Réinitialiser</button>
+      </div>
+
       <div class="rule thin"></div>
       <button class="btn" id="btn-reset">Remettre le classement à zéro</button>
       <p class="admin-note" id="reset-note" style="display:none;">
@@ -240,7 +301,10 @@ tr.me td{color:var(--green);}
   </div>
 
   <div class="topbar">
-    <span class="tag">Nalios × Odoo</span>
+    <span class="tags-left">
+      <span class="tag" id="topbar-tag">Nalios × Odoo</span>
+      <span class="tag act" id="settings-tag">⚙ Paramètres</span>
+    </span>
     <span class="tags-right">
       <span class="tag act" id="snd-tag">Son activé</span>
       <span class="tag act" id="fs-tag">Plein écran</span>
@@ -293,7 +357,9 @@ const CONFIG = {
     { label:'Dynamics',   src:null, bg:'#0B5394', fg:'#FFFFFF', w:90, h:48 },
     { label:'Sage',       src:null, bg:'#00A758', fg:'#FFFFFF', w:64, h:60 },
     { label:'Excel',      src:null, bg:'#217346', fg:'#FFFFFF', w:70, h:56 },
-    { label:'WinBIZ',     src:null, bg:'#E2571F', fg:'#FFFFFF', w:82, h:50 }
+    { label:'WinBIZ',     src:null, bg:'#E2571F', fg:'#FFFFFF', w:82, h:50 },
+    { label:'Exact',      src:null, bg:'#E2001A', fg:'#FFFFFF', w:74, h:50 },
+    { label:'Cegid',      src:null, bg:'#5B2A86', fg:'#FFFFFF', w:74, h:50 }
   ],
 
   /* bonus : pastille Odoo */
@@ -310,6 +376,99 @@ const CONFIG = {
     { alt:238, pts:100 }
   ]
 };
+
+/* =================================================================
+   1b. RÉGLAGES PERSONNALISABLES — langue, textes, concurrents affichés.
+   Stockés en local sur cet appareil (un seul stand), modifiables depuis
+   le panneau Paramètres (icône ⚙ en haut à gauche).
+================================================================= */
+const ALL_RIVAL_LABELS = CONFIG.rivals.map(r=>r.label);
+
+function loadJSON(key,fallback){
+  try{ const r=localStorage.getItem(key); return r?JSON.parse(r):fallback; }catch(e){ return fallback; }
+}
+function saveJSON(key,v){ try{ localStorage.setItem(key,JSON.stringify(v)); }catch(e){} }
+
+/* --- langue : FR ou NL, pour les textes fixes de l'interface -------- */
+let LANG=loadJSON('nalios-lang','fr');
+if(LANG!=='fr' && LANG!=='nl') LANG='fr';
+
+const I18N={
+  fr:{
+    commencer:'Commencer', voirClassement:'Voir le classement',
+    labelNom:'Nom affiché au classement', labelEmail:'E-mail',
+    pretPrefix:'Prêt, ', pretSuffix:' ?',
+    readyInstructions:'<strong style="color:var(--text)">Toucher l\'écran</strong> ou <strong style="color:var(--text)">Espace</strong> → sauter.<br>Certains concurrents flottent en hauteur : vise plus haut.<br>Attrape les <strong style="color:#B07FA8">O</strong> Odoo en vol : plus ils sont hauts, plus ils rapportent.',
+    cestParti:"C'est parti",
+    mancheTerminee:'Manche terminée', meilleurScore:'Meilleur score du salon', top5:'Dans le top 5',
+    points:'Points', distance:'DISTANCE', appsOdoo:'APPS ODOO', bonus:'BONUS',
+    calculClassement:'Calcul du classement…', scoreNonSync:'Score non synchronisé (connexion).',
+    personneNeFaitMieux:'Personne ne fait mieux pour l’instant', placeClassement:'ᵉ place au classement',
+    rejouer:'Rejouer', classement:'Classement', joueurSuivant:'Joueur suivant',
+    joueur:'Joueur', chargement:'Chargement…',
+    aucunePartie:'Aucune partie jouée. Le premier score fixe la barre.',
+    classementIndispo:'Classement indisponible pour le moment.',
+    retour:'Retour', parametres:'Paramètres', resetScores:'Remettre le classement à zéro',
+    reserveStand:'Réservé au stand', motDePasse:'Mot de passe', mdpIncorrect:'Mot de passe incorrect.',
+    ouvrir:'Ouvrir', retourClassement:'Retour au classement',
+    sonActive:'Son activé', sonCoupe:'Son coupé', pleinEcran:'Plein écran', settingsTag:'⚙ Paramètres',
+    toucheEcran:"Touche l'écran pour commencer"
+  },
+  nl:{
+    commencer:'Beginnen', voirClassement:'Bekijk klassement',
+    labelNom:'Naam op klassement', labelEmail:'E-mail',
+    pretPrefix:'Klaar, ', pretSuffix:'?',
+    readyInstructions:'<strong style="color:var(--text)">Scherm aanraken</strong> of <strong style="color:var(--text)">Spatie</strong> → springen.<br>Sommige concurrenten zweven hoog: mik hoger.<br>Vang de <strong style="color:#B07FA8">O</strong> van Odoo in de lucht: hoe hoger, hoe meer punten.',
+    cestParti:'Start',
+    mancheTerminee:'Ronde afgelopen', meilleurScore:'Beste score van de beurs', top5:'In de top 5',
+    points:'Punten', distance:'AFSTAND', appsOdoo:'ODOO-APPS', bonus:'BONUS',
+    calculClassement:'Klassement berekenen…', scoreNonSync:'Score niet gesynchroniseerd (verbinding).',
+    personneNeFaitMieux:'Niemand doet momenteel beter', placeClassement:'e plaats in het klassement',
+    rejouer:'Opnieuw spelen', classement:'Klassement', joueurSuivant:'Volgende speler',
+    joueur:'Speler', chargement:'Laden…',
+    aucunePartie:'Nog geen partij gespeeld. De eerste score zet de norm.',
+    classementIndispo:'Klassement momenteel niet beschikbaar.',
+    retour:'Terug', parametres:'Instellingen', resetScores:'Klassement resetten',
+    reserveStand:'Voorbehouden aan de stand', motDePasse:'Wachtwoord', mdpIncorrect:'Onjuist wachtwoord.',
+    ouvrir:'Openen', retourClassement:'Terug naar klassement',
+    sonActive:'Geluid aan', sonCoupe:'Geluid uit', pleinEcran:'Volledig scherm', settingsTag:'⚙ Instellingen',
+    toucheEcran:'Raak het scherm aan om te beginnen'
+  }
+};
+function t(key){ return (I18N[LANG]&&I18N[LANG][key]) ?? I18N.fr[key] ?? ''; }
+
+/* --- textes personnalisables (marketing / promo), par langue -------- */
+const DEFAULT_TEXTS={
+  fr:{
+    eyebrow:'Nalios · Partenaire Odoo', title:'Saute par-dessus la', accent:'concurrence',
+    lede:'Trente secondes, un doigt, un classement. Le meilleur score du salon repart avec le trophée.',
+    consent:"J'accepte que Nalios me recontacte au sujet d'Odoo. Mes données ne sont pas transmises à des tiers.",
+    attractTitle:'Viens jouer et gagne des', attractAccent:'heures de consultance sur Odoo',
+    boardEyebrow:'Odoo Business Show', topbarTag:'Nalios × Odoo'
+  },
+  nl:{
+    eyebrow:'Nalios · Odoo Partner', title:'Spring over', accent:'de concurrentie',
+    lede:'Dertig seconden, één vinger, een klassement. De beste score van de beurs wint de trofee.',
+    consent:'Ik ga akkoord dat Nalios mij contacteert over Odoo. Mijn gegevens worden niet aan derden doorgegeven.',
+    attractTitle:'Kom spelen en win', attractAccent:'consultancy-uren voor Odoo',
+    boardEyebrow:'Odoo Business Show', topbarTag:'Nalios × Odoo'
+  }
+};
+function loadTexts(lang){ return Object.assign({},DEFAULT_TEXTS[lang],loadJSON('nalios-texts-'+lang,{})); }
+function saveTexts(lang,v){ saveJSON('nalios-texts-'+lang,v); }
+
+/* --- concurrents affichés en jeu (de 1 à 10) ------------------------ */
+function loadEnabledRivals(){
+  const saved=loadJSON('nalios-rivals-enabled',null);
+  if(!Array.isArray(saved)||!saved.length) return ALL_RIVAL_LABELS.slice();
+  const filtered=saved.filter(l=>ALL_RIVAL_LABELS.includes(l));
+  return filtered.length?filtered:ALL_RIVAL_LABELS.slice();
+}
+function saveEnabledRivals(list){ saveJSON('nalios-rivals-enabled',list); }
+function activeRivals(){
+  const list=CONFIG.rivals.filter(r=>loadEnabledRivals().includes(r.label));
+  return list.length?list:CONFIG.rivals;
+}
 
 /* =================================================================
    3. IMAGES
@@ -467,18 +626,19 @@ function spawn(){
   const gm=gapMultiplier(totalScore());
   let gapAfter;
 
+  const rivals=activeRivals();
   if(Math.random()<flyChance){
     /* concurrent en vol : franchissable par le haut, jamais par le bas */
-    const t=pick(CONFIG.rivals);
+    const t=pick(rivals);
     const bottom=44+Math.random()*22;
     obstacles.push({kind:'fly',t,x,w:t.w,h:t.h,bottom,t0:Math.random()*6});
     gapAfter=(speed*0.74+Math.random()*speed*0.45)*gm;
   }else{
-    const t=pick(CONFIG.rivals);
+    const t=pick(rivals);
     obstacles.push({kind:'ground',t,x,w:t.w,h:t.h});
     let width=t.w;
     if(dist>2600 && Math.random()<0.24){
-      const t2=pick(CONFIG.rivals);
+      const t2=pick(rivals);
       obstacles.push({kind:'ground',t:t2,x:x+t.w+12,w:t2.w,h:t2.h});
       width+=t2.w+12;
     }
@@ -581,18 +741,18 @@ function die(){
   document.getElementById('over-dist').textContent=Math.floor(dist/8)+' m';
   document.getElementById('over-apps').textContent=appsTaken;
   document.getElementById('over-bonus').textContent='+'+bonusPts;
-  document.getElementById('over-verdict').textContent='Manche terminée';
-  document.getElementById('over-rank').textContent='Calcul du classement…';
+  document.getElementById('over-verdict').textContent=t('mancheTerminee');
+  document.getElementById('over-rank').textContent=t('calculClassement');
   setTimeout(()=>show('s-over'),640);
 
   saveScore(current,pts).then(rank=>{
     document.getElementById('over-verdict').textContent =
-      rank===1?'Meilleur score du salon':(rank<=5?'Dans le top 5':'Manche terminée');
+      rank===1?t('meilleurScore'):(rank<=5?t('top5'):t('mancheTerminee'));
     document.getElementById('over-rank').textContent =
-      rank===1?'Personne ne fait mieux pour l’instant':rank+'ᵉ place au classement';
+      rank===1?t('personneNeFaitMieux'):rank+t('placeClassement');
     if(rank===1) sfx.record();
   }).catch(()=>{
-    document.getElementById('over-rank').textContent='Score non synchronisé (connexion).';
+    document.getElementById('over-rank').textContent=t('scoreNonSync');
   });
 }
 
@@ -827,12 +987,12 @@ function escapeHtml(s){
 }
 async function renderBoard(){
   const body=document.getElementById('board-body');
-  body.innerHTML='<tr><td colspan="3" class="empty">Chargement…</td></tr>';
+  body.innerHTML='<tr><td colspan="3" class="empty">'+t('chargement')+'</td></tr>';
   let rows;
   try{ rows=(await getDocs(query(scoresCol,orderBy('score','desc'),limit(20)))).docs.map(d=>d.data()); }
-  catch(e){ body.innerHTML='<tr><td colspan="3" class="empty">Classement indisponible pour le moment.</td></tr>'; return; }
+  catch(e){ body.innerHTML='<tr><td colspan="3" class="empty">'+t('classementIndispo')+'</td></tr>'; return; }
   if(!rows.length){
-    body.innerHTML='<tr><td colspan="3" class="empty">Aucune partie jouée. Le premier score fixe la barre.</td></tr>';
+    body.innerHTML='<tr><td colspan="3" class="empty">'+t('aucunePartie')+'</td></tr>';
     return;
   }
   body.innerHTML=rows.map((r,i)=>
@@ -887,7 +1047,7 @@ $('btn-start').onclick=()=>{
   cLabel.classList.toggle('err',!okC);
   if(!okN||!okE||!okC){ (!okN?n:!okE?e:c).focus(); return; }
   current={name:n.value.trim(),email:e.value.trim().toLowerCase(),consent:c.checked};
-  $('ready-hello').textContent='Prêt, '+current.name.split(' ')[0]+' ?';
+  $('ready-hello').textContent=t('pretPrefix')+current.name.split(' ')[0]+t('pretSuffix');
   show('s-ready');
 };
 $('btn-go').onclick=startRun;
@@ -907,14 +1067,15 @@ $('btn-lock-back').onclick=()=>show('s-board');
 
 function tryUnlock(){
   if($('f-pass').value.trim().toLowerCase()===ADMIN_PASS){ show('s-admin'); }
-  else{ $('pass-err').style.display='block'; $('f-pass').value=''; $('f-pass').focus(); }
+  else{ $('pass-err').textContent=t('mdpIncorrect'); $('pass-err').style.display='block'; $('f-pass').value=''; $('f-pass').focus(); }
 }
 $('btn-unlock').onclick=tryUnlock;
 $('f-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
 
 async function refreshAdmin(){
-  $('admin-count').textContent='Chargement…';
+  $('admin-count').textContent=t('chargement');
   $('reset-note').style.display='none';
+  populateAdminForm();
   let rows;
   try{ rows=(await getDocs(scoresCol)).docs.map(d=>d.data()); }
   catch(e){ $('admin-count').textContent='Données indisponibles pour le moment.'; return; }
@@ -925,7 +1086,7 @@ $('btn-admin-back').onclick=()=>show('s-board');
 
 function paintSound(){
   const el=$('snd-tag');
-  el.textContent=sfx.isMuted()?'Son coupé':'Son activé';
+  el.textContent=sfx.isMuted()?t('sonCoupe'):t('sonActive');
   el.classList.toggle('muted',sfx.isMuted());
 }
 $('snd-tag').onclick=()=>{ sfx.toggle(); paintSound(); };
@@ -934,6 +1095,118 @@ paintSound();
 $('fs-tag').onclick=()=>{
   if(!document.fullscreenElement) document.documentElement.requestFullscreen?.();
   else document.exitFullscreen?.();
+};
+
+/* =================================================================
+   7c. RÉGLAGES — accès rapide, langue, textes, concurrents affichés
+================================================================= */
+$('settings-tag').onclick=()=>show('s-lock');
+
+function applyTexts(){
+  const tx=loadTexts(LANG);
+  $('reg-eyebrow').textContent=tx.eyebrow;
+  $('reg-title').textContent=tx.title;
+  $('reg-accent').textContent=tx.accent;
+  $('reg-lede').textContent=tx.lede;
+  $('consent-text').textContent=tx.consent;
+  $('attract-eyebrow').textContent=tx.eyebrow;
+  $('attract-title').textContent=tx.attractTitle;
+  $('attract-accent').textContent=tx.attractAccent;
+  $('board-eyebrow').textContent=tx.boardEyebrow;
+  $('topbar-tag').textContent=tx.topbarTag;
+}
+
+function applyLanguage(){
+  $('btn-start').textContent=t('commencer');
+  $('btn-board-1').textContent=t('voirClassement');
+  $('label-nom').textContent=t('labelNom');
+  $('label-email').textContent=t('labelEmail');
+  $('btn-go').textContent=t('cestParti');
+  $('ready-instructions').innerHTML=t('readyInstructions');
+  $('unit-points').textContent=t('points');
+  $('label-distance').textContent=t('distance');
+  $('label-apps').textContent=t('appsOdoo');
+  $('label-bonus').textContent=t('bonus');
+  $('btn-again').textContent=t('rejouer');
+  $('btn-board-2').textContent=t('classement');
+  $('btn-newplayer').textContent=t('joueurSuivant');
+  $('board-heading').textContent=t('classement');
+  $('th-joueur').textContent=t('joueur');
+  $('th-points').textContent=t('points');
+  $('btn-back').textContent=t('retour');
+  $('btn-settings').textContent=t('parametres');
+  $('lock-eyebrow').textContent=t('reserveStand');
+  $('lock-heading').textContent=t('parametres');
+  $('label-pass').textContent=t('motDePasse');
+  $('btn-unlock').textContent=t('ouvrir');
+  $('btn-lock-back').textContent=t('retourClassement');
+  $('admin-eyebrow').textContent=t('reserveStand');
+  $('admin-heading').textContent=t('parametres');
+  $('btn-reset').textContent=t('resetScores');
+  $('btn-admin-back').textContent=t('retourClassement');
+  $('fs-tag').textContent=t('pleinEcran');
+  $('settings-tag').textContent=t('settingsTag');
+  $('attract-subtitle').textContent=t('toucheEcran');
+  $('texts-lang-note').textContent=LANG.toUpperCase();
+  paintSound();
+}
+
+function renderRivalPicker(){
+  const enabled=loadEnabledRivals();
+  $('rival-picker').innerHTML=CONFIG.rivals.map(r=>
+    '<label class="rival-row"><input type="checkbox" data-rival="'+escapeHtml(r.label)+'" '+
+    (enabled.includes(r.label)?'checked':'')+'><span>'+escapeHtml(r.label)+'</span></label>'
+  ).join('');
+  $('rival-picker').querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.onchange=()=>{
+      const cur=loadEnabledRivals();
+      const next=cb.checked ? [...new Set([...cur,cb.dataset.rival])] : cur.filter(l=>l!==cb.dataset.rival);
+      if(!next.length){ cb.checked=true; return; } /* au moins un concurrent doit rester actif */
+      saveEnabledRivals(next);
+    };
+  });
+}
+
+function populateAdminForm(){
+  const tx=loadTexts(LANG);
+  $('txt-eyebrow').value=tx.eyebrow;
+  $('txt-title').value=tx.title;
+  $('txt-accent').value=tx.accent;
+  $('txt-lede').value=tx.lede;
+  $('txt-consent').value=tx.consent;
+  $('txt-attractTitle').value=tx.attractTitle;
+  $('txt-attractAccent').value=tx.attractAccent;
+  $('txt-boardEyebrow').value=tx.boardEyebrow;
+  $('txt-topbarTag').value=tx.topbarTag;
+  $('texts-lang-note').textContent=LANG.toUpperCase();
+  renderRivalPicker();
+}
+
+function setLanguage(lang){
+  LANG=lang; saveJSON('nalios-lang',lang);
+  applyLanguage(); applyTexts(); populateAdminForm();
+}
+$('btn-lang-fr').onclick=()=>setLanguage('fr');
+$('btn-lang-nl').onclick=()=>setLanguage('nl');
+
+$('btn-texts-save').onclick=()=>{
+  const d=DEFAULT_TEXTS[LANG];
+  saveTexts(LANG,{
+    eyebrow:$('txt-eyebrow').value.trim()||d.eyebrow,
+    title:$('txt-title').value.trim()||d.title,
+    accent:$('txt-accent').value.trim()||d.accent,
+    lede:$('txt-lede').value.trim()||d.lede,
+    consent:$('txt-consent').value.trim()||d.consent,
+    attractTitle:$('txt-attractTitle').value.trim()||d.attractTitle,
+    attractAccent:$('txt-attractAccent').value.trim()||d.attractAccent,
+    boardEyebrow:$('txt-boardEyebrow').value.trim()||d.boardEyebrow,
+    topbarTag:$('txt-topbarTag').value.trim()||d.topbarTag
+  });
+  applyTexts();
+};
+$('btn-texts-reset').onclick=()=>{
+  try{ localStorage.removeItem('nalios-texts-'+LANG); }catch(e){}
+  applyTexts(); populateAdminForm();
 };
 
 /* =================================================================
@@ -966,6 +1239,7 @@ cv.addEventListener('pointerdown',e=>{ e.preventDefault(); jump(); });
 document.addEventListener('gesturestart',e=>e.preventDefault());
 document.addEventListener('dblclick',e=>e.preventDefault());
 
+applyTexts(); applyLanguage();
 resize(); reset();
 requestAnimationFrame(t=>{ last=t; loop(t); });
 </script>
