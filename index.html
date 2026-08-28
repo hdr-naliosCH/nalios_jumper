@@ -496,6 +496,14 @@ function spawnBonus(cx){
   }
 }
 
+/* paliers de difficulté supplémentaires une fois un gros score atteint */
+function speedMultiplier(pts){
+  if(pts>=15000) return 1.4;
+  if(pts>=10000) return 1.2;
+  if(pts>=5000) return 1.1;
+  return 1;
+}
+
 /* --- boucle logique -------------------------------------------------- */
 function update(dt){
   pops.forEach(p=>p.t+=dt);
@@ -504,7 +512,8 @@ function update(dt){
   if(state==='dead') deathT+=dt;
   if(state!=='play' && !demoMode) return;
 
-  speed=Math.min(CONFIG.physics.speedMax,CONFIG.physics.speed0+dist*CONFIG.physics.accel/100);
+  const mult=speedMultiplier(totalScore());
+  speed=Math.min(CONFIG.physics.speedMax*mult,(CONFIG.physics.speed0+dist*CONFIG.physics.accel/100)*mult);
   const dx=speed*dt;
   worldX+=dx; dist+=dx;
 
